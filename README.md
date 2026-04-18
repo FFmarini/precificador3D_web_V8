@@ -124,3 +124,11 @@ Nesta versão, o projeto já inclui:
 - separar configuração de homologação e produção por variáveis de ambiente
 - adicionar documentação de backup e restauração
 - criar changelog por versão
+
+Screeshots
+<img width="1598" height="1032" alt="image" src="https://github.com/user-attachments/assets/6d8e523f-4794-48d3-ac0f-c6aca507c92e" />
+<img width="1731" height="1024" alt="image" src="https://github.com/user-attachments/assets/b7dcc129-8384-4dcf-a6b5-986a816b4012" />
+<img width="1901" height="1031" alt="image" src="https://github.com/user-attachments/assets/1087cd69-9b2c-4d13-9042-0057e86842bf" />
+
+
+
