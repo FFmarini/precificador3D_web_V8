@@ -2,6 +2,7 @@
 
 Aplicação web em Flask para orçamento, gestão de pedidos e operação de uma pequena produção de impressão 3D.
 Se o App te ajudou e quiser me ajudar segue o pix, agradeço o incentivo para futuras versões.
+Dúvidas e sugestões - coffeedev34@gmail.com
 
 Chave Pix - 1f43dfb3-ad0d-4874-b2fb-c3604de4733d
 <img width="169" height="169" alt="image" src="https://github.com/user-attachments/assets/12bc90d8-3d5f-4235-bf32-aa8c11e0e5f0" />
