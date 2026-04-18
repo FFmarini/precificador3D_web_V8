@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid grid-4">
+  <div class="card"><div class="muted">Pedidos</div><h2>{{ total_orders }}</h2></div>
+  <div class="card"><div class="muted">Faturamento</div><h2>R$ {{ "%.2f"|format(fatur_mes) }}</h2></div>
+  <div class="card"><div class="muted">Lucro estimado</div><h2>R$ {{ "%.2f"|format(lucro_mes) }}</h2></div>
+  <div class="card">
+    <div class="muted">Filamentos em alerta</div>
+    <h2>{{ low_stock_filaments|length }}</h2>
+    <a class="link-inline" href="/filaments">Ver filamentos</a>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Alertas de estoque</h3>
+  {% if low_stock_filaments %}
+    <table>
+      <thead>
+        <tr><th>Filamento</th><th>Estoque atual</th><th>Mínimo</th><th>Situação</th></tr>
+      </thead>
+      <tbody>
+        {% for filament in low_stock_filaments %}
+        <tr>
+          <td>{{ filament.name }}</td>
+          <td>{{ "%.0f"|format(filament.stock_grams) }} g</td>
+          <td>{{ "%.0f"|format(filament.min_stock_alert_grams) }} g</td>
+          <td><span class="badge {{ filament.stock_status_class }}">{{ filament.stock_status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">Nenhum filamento em alerta no momento.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Editar pedido {{ order.id }}</h2>
+  <form method="post">
+    <div class="grid grid-4">
+      <div><label>Cliente</label><select name="client_id" required>{% for c in clients %}<option value="{{ c.id }}" {% if order and order.client_id==c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div><label>Projeto</label><select name="project_id" required>{% for p in projects %}<option value="{{ p.id }}" {% if order and order.project_id==p.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select></div>
+      <div><label>Filamento</label><select name="filament_id"><option value="">(opcional)</option>{% for f in filaments %}<option value="{{ f.id }}" {% if order and order.filament_id==f.id %}selected{% endif %}>{{ f.name }} - {{ "%.0f"|format(f.stock_grams) }} g</option>{% endfor %}</select></div>
+      <div><label>Cor escolhida</label><input name="chosen_color" value="{{ order.chosen_color if order else '' }}"></div>
+      <div><label>Peças</label><input name="pieces" type="number" min="1" value="{{ order.pieces if order else 1 }}"></div>
+      <div><label>Tempo por peça (HH:MM:SS)</label><input name="time_text" value="{% if order %}{{ '%02d:%02d:%02d' % ((order.time_seconds_per_piece//3600), ((order.time_seconds_per_piece%3600)//60), (order.time_seconds_per_piece%60)) }}{% else %}02:00:00{% endif %}"></div>
+      <div><label>Filamento g/peça</label><input name="filament_g_per_piece" type="number" step="0.01" value="{{ order.filament_g_per_piece if order else 40 }}"></div>
+      <div>
+        <label>Status</label>
+        <select name="status">
+          {% for item in ['Orçado','Em produção','Pronto','Entregue','Estoque','Cancelado'] %}
+          <option value="{{ item }}" {% if order and order.status==item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><label>Pagamento</label><select name="payment_method">{% for item in ['Pix','Dinheiro','Cartão','Transferência','Mercado Pago'] %}<option value="{{ item }}" {% if order and order.payment_method==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+      <div><label>Pago</label><select name="is_paid"><option value="0" {% if order and not order.is_paid %}selected{% endif %}>Não</option><option value="on" {% if order and order.is_paid %}selected{% endif %}>Sim</option></select></div>
+      <div><label>Filamento R$/kg</label><input name="filament_price_per_kg" type="number" step="0.01" value="{{ order.filament_price_per_kg if order else 120 }}"></div>
+      <div><label>Energia R$/kWh</label><input name="energy_price_per_kwh" type="number" step="0.01" value="{{ order.energy_price_per_kwh if order else 1 }}"></div>
+      <div><label>Watts médios</label><input name="printer_avg_watts" type="number" step="0.01" value="{{ order.printer_avg_watts if order else 120 }}"></div>
+      <div><label>Máquina R$/h</label><input name="machine_cost_per_hour" type="number" step="0.01" value="{{ order.machine_cost_per_hour if order else 2.5 }}"></div>
+      <div><label>Mão de obra</label><input name="labor_cost_fixed" type="number" step="0.01" value="{{ order.labor_cost_fixed if order else 5 }}"></div>
+      <div><label>Margem %</label><input name="margin_percent" type="number" step="0.01" value="{{ order.margin_percent if order else 30 }}"></div>
+      <div><label>Arredondar</label><input name="round_to" type="number" step="0.01" value="{{ order.round_to if order else 1 }}"></div>
+      <div><label>Falha %</label><input name="failure_rate_percent" type="number" step="0.01" value="{{ order.failure_rate_percent if order else 5 }}"></div>
+      <div><label>Overhead %</label><input name="overhead_percent" type="number" step="0.01" value="{{ order.overhead_percent if order else 10 }}"></div>
+      <div><label>Embalagem</label><input name="packaging_cost" type="number" step="0.01" value="{{ order.packaging_cost if order else 2.5 }}"></div>
+      <div><label>Taxa plataforma %</label><input name="platform_fee_percent" type="number" step="0.01" value="{{ order.platform_fee_percent if order else 10 }}"></div>
+      <div><label>Taxa pagamento %</label><input name="payment_fee_percent" type="number" step="0.01" value="{{ order.payment_fee_percent if order else 3.5 }}"></div>
+      <div><label>Frete</label><input name="shipping_price" type="number" step="0.01" value="{{ order.shipping_price if order else 0 }}"></div>
+      <div><label>Desconto</label><input name="discount_value" type="number" step="0.01" value="{{ order.discount_value if order else 0 }}"></div>
+      <div style="grid-column:1/-1"><label>Observações</label><textarea name="notes">{{ order.notes if order else '' }}</textarea></div>
+    </div>
+    <p><button class="btn-success">Atualizar pedido</button> <a class="btn btn-secondary" href="/orders">Voltar</a></p>
+  </form>
+</div>
+{% endblock %}

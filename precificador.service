@@ -1,0 +1,15 @@
+[Unit]
+Description=Precificador 3D Web V7 (Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/precificador
+Environment=PREC_DB_PATH=/opt/precificador/data/precificador.db
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/precificador/.venv/bin/gunicorn -w 2 -b 0.0.0.0:5000 web_app:app --timeout 120
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

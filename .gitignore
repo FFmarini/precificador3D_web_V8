@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Local databases and journals
+data/*.db
+data/*.db-*
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated artifacts
+pdf_out/
+uploads/
+*.zip
+
+# Local backups and temporary files
+*.bak
+*.bak_v7
+*.tmp
+*.log
+patch_test.txt
+
+# OS / editor noise
+.DS_Store
+Thumbs.db

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Clientes</h2>
+  <form method="post" action="/clients/new" class="grid grid-4">
+    <div><label>Nome</label><input name="name" required></div>
+    <div><label>Telefone</label><input name="phone"></div>
+    <div><label>Instagram</label><input name="instagram"></div>
+    <div><label>Cidade</label><input name="city"></div>
+    <div style="grid-column:1/-1"><label>Notas</label><textarea name="notes"></textarea></div>
+    <div><button class="btn-success">Salvar cliente</button></div>
+  </form>
+</div>
+<div class="card">
+  <form method="get" class="grid grid-4">
+    <div><label>Buscar</label><input name="q" value="{{ search or '' }}" placeholder="ID, nome, telefone, cidade..."></div>
+    <div><label>Ordenar por</label><select name="sort"><option value="id" {% if sort=='id' %}selected{% endif %}>ID</option><option value="nome" {% if sort=='nome' %}selected{% endif %}>Nome</option><option value="telefone" {% if sort=='telefone' %}selected{% endif %}>Telefone</option><option value="cidade" {% if sort=='cidade' %}selected{% endif %}>Cidade</option></select></div>
+    <div><label>Direção</label><select name="direction"><option value="asc" {% if direction=='asc' %}selected{% endif %}>Asc</option><option value="desc" {% if direction=='desc' %}selected{% endif %}>Desc</option></select></div>
+    <div><label>&nbsp;</label><button class="btn-secondary">Aplicar</button></div>
+  </form>
+</div>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Nome</th><th>Telefone</th><th>Cidade</th><th>Ações</th></tr></thead>
+    <tbody>
+      {% for c in clients %}
+      <tr>
+        <td>{{ c.id }}</td><td>{{ c.name }}</td><td>{{ c.phone or "" }}</td><td>{{ c.city or "" }}</td>
+        <td class="actions"><a href="/clients/{{ c.id }}/receipt">Recibo</a><a href="/clients/edit/{{ c.id }}">Editar</a><a href="/clients/delete/{{ c.id }}" onclick="return confirm('Excluir cliente?')">Excluir</a></td>
+      </tr>
+      {% endfor %}
+      {% if not clients %}
+      <tr><td colspan="5" class="muted">Nenhum cliente encontrado.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

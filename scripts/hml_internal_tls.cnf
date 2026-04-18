@@ -1,0 +1,26 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+req_extensions = req_ext
+
+[dn]
+C = BR
+ST = SP
+L = Sao Paulo
+O = Tres De Impressoes
+OU = Homologacao
+CN = hml-precificador.tresdeimpressoes.com.br
+
+[req_ext]
+subjectAltName = @alt_names
+extendedKeyUsage = serverAuth
+
+[alt_names]
+DNS.1 = hml-precificador.tresdeimpressoes.com.br
+DNS.2 = hml-precificador
+DNS.3 = precificador-hml.tresdeimpressoes.com.br
+IP.1 = 172.16.0.21
+IP.2 = 172.16.0.22
+IP.3 = 192.168.68.22

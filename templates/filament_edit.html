@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Editar filamento</h2>
+  <form method="post" class="grid grid-4">
+    <div><label>Nome</label><input name="name" value="{{ filament.name }}" required></div>
+    <div><label>Marca</label><input name="brand" value="{{ filament.brand or '' }}"></div>
+    <div><label>Tipo</label><input name="ftype" value="{{ filament.ftype or '' }}"></div>
+    <div><label>Cor</label><input name="color" value="{{ filament.color or '' }}"></div>
+    <div><label>Código</label><input name="code" value="{{ filament.code or '' }}"></div>
+    <div><label>Preço/kg</label><input name="price_per_kg" type="number" step="0.01" value="{{ filament.price_per_kg or 0 }}"></div>
+    <div><label>Estoque atual (g)</label><input name="stock_grams" type="number" step="0.01" value="{{ filament.stock_grams }}"></div>
+    <div><label>Alerta mínimo (g)</label><input name="min_stock_alert_grams" type="number" step="0.01" value="{{ filament.min_stock_alert_grams }}"></div>
+    <div><label>Peso padrão do rolo (g)</label><input name="spool_weight_grams" type="number" step="0.01" value="{{ filament.spool_weight_grams }}"></div>
+    <div style="grid-column:1/-1"><label>Notas</label><textarea name="notes">{{ filament.notes or '' }}</textarea></div>
+    <div><button class="btn-success">Atualizar</button> <a class="btn btn-secondary" href="/filaments">Voltar</a></div>
+  </form>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Entrada de estoque</h3>
+    <form method="post" action="/filaments/{{ filament.id }}/stock/add" class="grid grid-2">
+      <div><label>Quantidade de rolos</label><input name="spool_count" type="number" step="0.01"></div>
+      <div><label>Peso por rolo (g)</label><input name="spool_weight_grams" type="number" step="0.01" value="{{ filament.spool_weight_grams }}"></div>
+      <div><label>Ou gramas diretas</label><input name="grams" type="number" step="0.01"></div>
+      <div><label>Obs.</label><input name="notes" placeholder="Entrada manual de estoque"></div>
+      <div><button class="btn-success">Adicionar</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Ajuste manual</h3>
+    <form method="post" action="/filaments/{{ filament.id }}/stock/adjust" class="grid grid-2">
+      <div><label>Ajuste (g)</label><input name="adjust_grams" type="number" step="0.01" placeholder="+150 ou -80"></div>
+      <div><label>Obs.</label><input name="notes" placeholder="Correção de inventário"></div>
+      <div><button class="btn-secondary">Aplicar ajuste</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
