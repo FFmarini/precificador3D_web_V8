@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>{{ page_title }}</h2>
+  <p class="muted">{{ page_description }}</p>
+  {% if show_new_form %}
+  <form method="post" action="/settings/logo" enctype="multipart/form-data" class="grid grid-3">
+    <div><label>Logo para PDF</label><input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp"></div>
+    <div><label>&nbsp;</label><button class="btn-secondary">Salvar logo</button></div>
+  </form>
+  {% endif %}
+</div>
+
+<div class="card">
+  <form method="get" class="grid grid-4">
+    <div><label>Buscar</label><input name="q" value="{{ search or '' }}" placeholder="ID, cliente, projeto, status..."></div>
+    <div>
+      <label>Ordenar por</label>
+      <select name="sort">
+        <option value="id" {% if sort=='id' %}selected{% endif %}>ID</option>
+        <option value="codigo" {% if sort=='codigo' %}selected{% endif %}>Código</option>
+        <option value="cliente" {% if sort=='cliente' %}selected{% endif %}>Cliente</option>
+        <option value="projeto" {% if sort=='projeto' %}selected{% endif %}>Projeto</option>
+        <option value="status" {% if sort=='status' %}selected{% endif %}>Status</option>
+        <option value="valor" {% if sort=='valor' %}selected{% endif %}>Valor</option>
+        <option value="pago" {% if sort=='pago' %}selected{% endif %}>Pago</option>
+        <option value="data" {% if sort=='data' %}selected{% endif %}>Data</option>
+      </select>
+    </div>
+    <div>
+      <label>Direção</label>
+      <select name="direction">
+        <option value="desc" {% if direction=='desc' %}selected{% endif %}>Desc</option>
+        <option value="asc" {% if direction=='asc' %}selected{% endif %}>Asc</option>
+      </select>
+    </div>
+    <div><label>&nbsp;</label><button class="btn-secondary">Aplicar</button></div>
+  </form>
+</div>
+
+{% if show_new_form %}
+<div class="card">
+  <h3>Novo pedido</h3>
+  <form method="post" action="/orders/new">
+    <div class="grid grid-4">
+      <div><label>Cliente</label><select name="client_id" required>{% for c in clients %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+      <div><label>Projeto</label><select name="project_id" required>{% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+      <div><label>Filamento</label><select name="filament_id"><option value="">(opcional)</option>{% for f in filaments %}<option value="{{ f.id }}">{{ f.name }} - {{ "%.0f"|format(f.stock_grams) }} g</option>{% endfor %}</select></div>
+      <div><label>Cor escolhida</label><input name="chosen_color"></div>
+      <div><label>Peças</label><input name="pieces" type="number" min="1" value="1"></div>
+      <div><label>Tempo por peça (HH:MM:SS)</label><input name="time_text" value="02:00:00"></div>
+      <div><label>Filamento g/peça</label><input name="filament_g_per_piece" type="number" step="0.01" value="40"></div>
+      <div>
+        <label>Status</label>
+        <select name="status">
+          {% for item in ['Orçado','Em produção','Pronto','Entregue','Estoque','Cancelado'] %}
+          <option value="{{ item }}">{{ item }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><label>Pagamento</label><select name="payment_method">{% for item in ['Pix','Dinheiro','Cartão','Transferência','Mercado Pago'] %}<option value="{{ item }}">{{ item }}</option>{% endfor %}</select></div>
+      <div><label>Pago</label><select name="is_paid"><option value="0">Não</option><option value="on">Sim</option></select></div>
+      <div><label>Filamento R$/kg</label><input name="filament_price_per_kg" type="number" step="0.01" value="120"></div>
+      <div><label>Energia R$/kWh</label><input name="energy_price_per_kwh" type="number" step="0.01" value="1"></div>
+      <div><label>Watts médios</label><input name="printer_avg_watts" type="number" step="0.01" value="120"></div>
+      <div><label>Máquina R$/h</label><input name="machine_cost_per_hour" type="number" step="0.01" value="2.5"></div>
+      <div><label>Mão de obra</label><input name="labor_cost_fixed" type="number" step="0.01" value="5"></div>
+      <div><label>Margem %</label><input name="margin_percent" type="number" step="0.01" value="30"></div>
+      <div><label>Arredondar</label><input name="round_to" type="number" step="0.01" value="1"></div>
+      <div><label>Falha %</label><input name="failure_rate_percent" type="number" step="0.01" value="5"></div>
+      <div><label>Overhead %</label><input name="overhead_percent" type="number" step="0.01" value="10"></div>
+      <div><label>Embalagem</label><input name="packaging_cost" type="number" step="0.01" value="2.5"></div>
+      <div><label>Taxa plataforma %</label><input name="platform_fee_percent" type="number" step="0.01" value="10"></div>
+      <div><label>Taxa pagamento %</label><input name="payment_fee_percent" type="number" step="0.01" value="3.5"></div>
+      <div><label>Frete</label><input name="shipping_price" type="number" step="0.01" value="0"></div>
+      <div><label>Desconto</label><input name="discount_value" type="number" step="0.01" value="0"></div>
+      <div style="grid-column:1/-1"><label>Observações</label><textarea name="notes"></textarea></div>
+    </div>
+    <p><button class="btn-success">Salvar pedido</button></p>
+  </form>
+</div>
+{% endif %}
+
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Código</th><th>Cliente</th><th>Projeto</th><th>Status</th><th>Pago</th><th>Filamento</th><th>Baixa estoque</th><th>Total</th><th>Lucro</th><th>Ações</th></tr></thead>
+    <tbody>
+      {% for o in orders %}
+      <tr>
+        <td>{{ o.id }}</td>
+        <td>{{ o.code }}</td>
+        <td>{{ o.client_name }}</td>
+        <td>{{ o.project_name }}</td>
+        <td>{{ o.status }}</td>
+        <td>{% if o.is_paid %}<span class="badge badge-ok">Sim</span>{% else %}<span class="badge badge-muted">Não</span>{% endif %}</td>
+        <td>{{ o.filament_name or '-' }}</td>
+        <td>
+          {% if o.stock_discounted %}
+            <span class="badge badge-ok">Sim ({{ "%.0f"|format(o.stock_discounted_grams or 0) }} g)</span>
+          {% else %}
+            <span class="badge badge-muted">Não</span>
+          {% endif %}
+        </td>
+        <td>R$ {{ "%.2f"|format(o.final_price or 0) }}</td>
+        <td>R$ {{ "%.2f"|format(o.profit or 0) }}</td>
+        <td class="actions"><a href="/orders/edit/{{ o.id }}">Editar</a><a href="/orders/pdf/{{ o.id }}">PDF</a><a href="/orders/delete/{{ o.id }}" onclick="return confirm('Excluir pedido?')">Excluir</a></td>
+      </tr>
+      {% endfor %}
+      {% if not orders %}
+      <tr><td colspan="11" class="muted">Nenhum registro encontrado.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

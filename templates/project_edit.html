@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Editar projeto</h2>
+  <form method="post" class="grid grid-4">
+    <div><label>Nome</label><input name="name" value="{{ project.name }}" required></div>
+    <div><label>URL</label><input name="url" value="{{ project.url or '' }}"></div>
+    <div><label>Miniatura URL</label><input name="thumbnail_url" value="{{ project.thumbnail_url or '' }}" placeholder="Opcional; se a URL acima for imagem, ela vira miniatura automaticamente"></div>
+    <div><label>Notas</label><input name="notes" value="{{ project.notes or '' }}"></div>
+    {% if project.thumbnail_url %}
+    <div>
+      <label>Preview</label>
+      <img class="project-thumb" src="{{ project.thumbnail_url }}" alt="Miniatura do projeto {{ project.name }}">
+    </div>
+    {% endif %}
+    <div><button class="btn-success">Atualizar</button> <a class="btn btn-secondary" href="/projects">Voltar</a></div>
+  </form>
+</div>
+{% endblock %}

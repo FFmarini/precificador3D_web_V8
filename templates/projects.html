@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Projetos</h2>
+  <form method="post" action="/projects/new" class="grid grid-4">
+    <div><label>Nome</label><input name="name" required></div>
+    <div><label>URL</label><input name="url"></div>
+    <div><label>Miniatura URL</label><input name="thumbnail_url" placeholder="Opcional; se a URL for imagem, ela vira miniatura automaticamente"></div>
+    <div><label>Notas</label><input name="notes"></div>
+    <div><button class="btn-success">Salvar projeto</button></div>
+  </form>
+</div>
+<div class="card">
+  <form method="get" class="grid grid-4">
+    <div><label>Buscar</label><input name="q" value="{{ search or '' }}" placeholder="ID, nome, URL, notas..."></div>
+    <div><label>Ordenar por</label><select name="sort"><option value="id" {% if sort=='id' %}selected{% endif %}>ID</option><option value="nome" {% if sort=='nome' %}selected{% endif %}>Nome</option><option value="url" {% if sort=='url' %}selected{% endif %}>URL</option></select></div>
+    <div><label>Direção</label><select name="direction"><option value="asc" {% if direction=='asc' %}selected{% endif %}>Asc</option><option value="desc" {% if direction=='desc' %}selected{% endif %}>Desc</option></select></div>
+    <div><label>&nbsp;</label><button class="btn-secondary">Aplicar</button></div>
+  </form>
+</div>
+<div class="card table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Miniatura</th><th>Nome</th><th>URL</th><th>Notas</th><th>Ações</th></tr></thead>
+    <tbody>
+      {% for p in projects %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>
+          {% if p.thumbnail_url %}
+          <img class="project-thumb" src="{{ p.thumbnail_url }}" alt="Miniatura do projeto {{ p.name }}" loading="lazy">
+          {% else %}
+          <span class="muted">Sem miniatura</span>
+          {% endif %}
+        </td>
+        <td>{{ p.name }}</td>
+        <td>{% if p.url %}<a href="{{ p.url }}" target="_blank">abrir</a>{% endif %}</td>
+        <td>{{ p.notes or "" }}</td>
+        <td class="actions"><a href="/projects/edit/{{ p.id }}">Editar</a><a href="/projects/delete/{{ p.id }}" onclick="return confirm('Excluir projeto?')">Excluir</a></td>
+      </tr>
+      {% endfor %}
+      {% if not projects %}
+      <tr><td colspan="6" class="muted">Nenhum projeto encontrado.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

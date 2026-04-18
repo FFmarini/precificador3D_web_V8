@@ -1,0 +1,25 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+req_extensions = req_ext
+
+[dn]
+C = BR
+ST = SP
+L = Sao Paulo
+O = Tres De Impressoes
+OU = Producao
+CN = precificador.tresdeimpressoes.com.br
+
+[req_ext]
+subjectAltName = @alt_names
+extendedKeyUsage = serverAuth
+
+[alt_names]
+DNS.1 = precificador.tresdeimpressoes.com.br
+DNS.2 = precificador-lan.tresdeimpressoes.com.br
+DNS.3 = precificador
+IP.1 = 172.16.0.22
+IP.2 = 192.168.68.22

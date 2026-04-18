@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Movimentações de estoque</h2>
+  <form method="get" class="grid grid-3">
+    <div>
+      <label>Filtrar por filamento</label>
+      <select name="filament_id">
+        <option value="">Todos</option>
+        {% for f in filaments %}
+        <option value="{{ f.id }}" {% if selected_filament_id == f.id %}selected{% endif %}>{{ f.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div><label>&nbsp;</label><button class="btn-secondary">Filtrar</button></div>
+  </form>
+</div>
+
+<div class="card table-wrap">
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Filamento</th><th>Tipo</th><th>Gramas</th><th>Pedido</th><th>Cliente</th><th>Obs.</th></tr>
+    </thead>
+    <tbody>
+      {% for movement in movements %}
+      <tr>
+        <td>{{ movement.created_at }}</td>
+        <td>{{ movement.filament_name }}</td>
+        <td>{{ movement.movement_type }}</td>
+        <td>{{ "%+.0f"|format(movement.grams) }} g</td>
+        <td>{{ movement.order_code or "-" }}</td>
+        <td>{{ movement.client_name or "-" }}</td>
+        <td>{{ movement.notes or "" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
