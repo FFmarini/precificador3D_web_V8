@@ -110,6 +110,18 @@ O repositório ignora arquivos sensíveis ou gerados localmente, como:
 - backups
 - arquivos temporários
 
+## Licença
+
+Este projeto utiliza uma licença restritiva de uso.
+
+Em resumo:
+
+- o uso é permitido apenas para fins pessoais, internos ou de avaliação;
+- não é permitido vender, revender ou usar comercialmente sem autorização;
+- não é permitido modificar ou redistribuir o código sem autorização expressa.
+
+Leia o arquivo `LICENSE` para o texto completo.
+
 ## Status atual da V8
 
 Nesta versão, o projeto já inclui:
