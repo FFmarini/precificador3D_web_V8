@@ -140,6 +140,20 @@ Nesta versao, o projeto ja inclui:
 
 ## Proximos passos sugeridos
 
+Screenshot
+<img width="1893" height="1020" alt="image" src="https://github.com/user-attachments/assets/1d7523c9-b9e9-4ffd-a53b-9271bc1bd5cc" />
+<img width="1901" height="1033" alt="image" src="https://github.com/user-attachments/assets/fbfcddf4-e6f2-4b3b-a50e-5f5c282c5fab" />
+<img width="1601" height="467" alt="image" src="https://github.com/user-attachments/assets/58bd622b-30f0-438e-b0e6-6e378f379849" />
+<img width="1919" height="587" alt="image" src="https://github.com/user-attachments/assets/6bad2ac3-23d7-470a-a18c-41e1d7923dc7" />
+<img width="1893" height="565" alt="image" src="https://github.com/user-attachments/assets/2096863c-5afa-4390-815b-7bb892c70faf" />
+<img width="1915" height="592" alt="image" src="https://github.com/user-attachments/assets/aed4aa07-5f73-4edd-9546-36e63f94b153" />
+<img width="1911" height="1035" alt="image" src="https://github.com/user-attachments/assets/9533433e-4413-49cb-95e4-ae29f735bca3" />
+
+
+
+
+
+
 - melhorar extracao automatica de miniaturas de projetos a partir de paginas web
 - separar configuracao de homologacao e producao por variaveis de ambiente
 - adicionar documentacao de backup e restauracao
