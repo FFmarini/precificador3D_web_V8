@@ -140,7 +140,12 @@ Nesta versao, o projeto ja inclui:
 
 ## Proximos passos sugeridos
 
-Screenshot
+- melhorar extracao automatica de miniaturas de projetos a partir de paginas web
+- separar configuracao de homologacao e producao por variaveis de ambiente
+- adicionar documentacao de backup e restauracao
+- criar changelog por versao
+
+Screenshots
 <img width="1893" height="1020" alt="image" src="https://github.com/user-attachments/assets/1d7523c9-b9e9-4ffd-a53b-9271bc1bd5cc" />
 <img width="1901" height="1033" alt="image" src="https://github.com/user-attachments/assets/fbfcddf4-e6f2-4b3b-a50e-5f5c282c5fab" />
 <img width="1601" height="467" alt="image" src="https://github.com/user-attachments/assets/58bd622b-30f0-438e-b0e6-6e378f379849" />
@@ -154,7 +159,4 @@ Screenshot
 
 
 
-- melhorar extracao automatica de miniaturas de projetos a partir de paginas web
-- separar configuracao de homologacao e producao por variaveis de ambiente
-- adicionar documentacao de backup e restauracao
-- criar changelog por versao
+
