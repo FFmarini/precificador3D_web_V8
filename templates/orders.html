@@ -81,6 +81,55 @@
 </div>
 {% endif %}
 
+{% if show_new_form %}
+<form method="get" action="/orders/budget-pdf">
+  <div class="card">
+    <div class="toolbar-actions">
+      <button class="btn" type="submit">Gerar PDF dos orçamentos selecionados</button>
+      <span class="muted">Só pedidos com status Orçado entram no PDF consolidado.</span>
+    </div>
+  </div>
+
+  <div class="card table-wrap">
+    <table>
+      <thead><tr><th>Sel.</th><th>ID</th><th>Código</th><th>Cliente</th><th>Projeto</th><th>Status</th><th>Pago</th><th>Filamento</th><th>Baixa estoque</th><th>Total</th><th>Lucro</th><th>Ações</th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td class="checkbox-col">
+            {% if o.is_budget_status %}
+            <input type="checkbox" name="oid" value="{{ o.id }}">
+            {% else %}
+            <span class="muted">-</span>
+            {% endif %}
+          </td>
+          <td>{{ o.id }}</td>
+          <td>{{ o.code }}</td>
+          <td>{{ o.client_name }}</td>
+          <td>{{ o.project_name }}</td>
+          <td>{{ o.status }}</td>
+          <td>{% if o.is_paid %}<span class="badge badge-ok">Sim</span>{% else %}<span class="badge badge-muted">Não</span>{% endif %}</td>
+          <td>{{ o.filament_name or '-' }}</td>
+          <td>
+            {% if o.stock_discounted %}
+              <span class="badge badge-ok">Sim ({{ "%.0f"|format(o.stock_discounted_grams or 0) }} g)</span>
+            {% else %}
+              <span class="badge badge-muted">Não</span>
+            {% endif %}
+          </td>
+          <td>R$ {{ "%.2f"|format(o.final_price or 0) }}</td>
+          <td>R$ {{ "%.2f"|format(o.profit or 0) }}</td>
+          <td class="actions"><a href="/orders/edit/{{ o.id }}">Editar</a><a href="/orders/pdf/{{ o.id }}">PDF</a><a href="/orders/delete/{{ o.id }}" onclick="return confirm('Excluir pedido?')">Excluir</a></td>
+        </tr>
+        {% endfor %}
+        {% if not orders %}
+        <tr><td colspan="12" class="muted">Nenhum registro encontrado.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</form>
+{% else %}
 <div class="card table-wrap">
   <table>
     <thead><tr><th>ID</th><th>Código</th><th>Cliente</th><th>Projeto</th><th>Status</th><th>Pago</th><th>Filamento</th><th>Baixa estoque</th><th>Total</th><th>Lucro</th><th>Ações</th></tr></thead>
@@ -112,4 +161,5 @@
     </tbody>
   </table>
 </div>
+{% endif %}
 {% endblock %}

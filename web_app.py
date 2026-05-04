@@ -1,4 +1,5 @@
 import os
+import secrets
 from pathlib import Path
 
 from flask import Flask, flash, redirect, render_template, request, send_from_directory, url_for
@@ -32,7 +33,12 @@ from app.db import (
     save_project,
     set_setting,
 )
-from app.pdfs import generate_client_pdf, generate_client_receipt_pdf
+from app.pdfs import (
+    generate_client_pdf,
+    generate_client_receipt_pdf,
+    generate_filament_labels_pdf,
+    generate_orders_budget_pdf,
+)
 from app.pricing import compute_pricing_farm
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -50,7 +56,11 @@ if not os.environ.get("PREC_DB_PATH"):
         os.environ["PREC_DB_PATH"] = str(DATA_DIR / "precificador.db")
 
 app = Flask(__name__)
-app.secret_key = "REMOVED-FLASK-SECRET"
+app.secret_key = (
+    os.environ.get("PRECIFICADOR_SECRET_KEY")
+    or os.environ.get("SECRET_KEY")
+    or secrets.token_hex(32)
+)
 _DB_READY = False
 
 
@@ -184,6 +194,41 @@ def clients_receipt(client_id):
 def filaments_page():
     args = list_args(default_sort="nome", default_direction="asc")
     return render_template("filaments.html", filaments=list_filaments(**args), **args)
+
+
+@app.get("/filaments/labels")
+def filaments_labels():
+    args = list_args(default_sort="nome", default_direction="asc")
+    selected_ids = []
+    for raw_id in request.args.getlist("fid"):
+        fid = to_int(raw_id, 0)
+        if fid > 0 and fid not in selected_ids:
+            selected_ids.append(fid)
+
+    if selected_ids:
+        filaments = [item for item in (get_filament(fid) for fid in selected_ids) if item]
+    else:
+        filaments = list_filaments(**args)
+    if not filaments:
+        flash("Nenhum filamento encontrado para gerar etiquetas.", "warning")
+        return redirect(url_for("filaments_page", **args))
+
+    pdf_path = PDF_DIR / "etiquetas_filamentos_40x25mm.pdf"
+    generate_filament_labels_pdf(filaments, pdf_path)
+    return send_from_directory(pdf_path.parent.resolve(), pdf_path.name, as_attachment=True)
+
+
+@app.get("/filaments/<int:fid>/label")
+def filament_label(fid):
+    filament = get_filament(fid)
+    if not filament:
+        flash("Filamento nÃ£o encontrado.", "warning")
+        return redirect(url_for("filaments_page"))
+
+    safe_name = "".join(ch if ch.isalnum() else "_" for ch in (filament.get("name") or "filamento"))
+    pdf_path = PDF_DIR / f"etiqueta_filamento_{fid}_{safe_name[:40]}.pdf"
+    generate_filament_labels_pdf([filament], pdf_path)
+    return send_from_directory(pdf_path.parent.resolve(), pdf_path.name, as_attachment=True)
 
 
 @app.post("/filaments/new")
@@ -540,6 +585,62 @@ def orders_pdf(order_id):
     logo_path = Path(logo_path) if logo_path else None
     pdf_path = Path("pdf_out") / f"{format_order_code(row['order_no'])}.pdf"
     generate_client_pdf(dict(row), pdf_path, logo_path=logo_path)
+    return send_from_directory(pdf_path.parent.resolve(), pdf_path.name, as_attachment=True)
+
+
+@app.get("/orders/budget-pdf")
+def orders_budget_pdf():
+    selected_ids = []
+    for raw_id in request.args.getlist("oid"):
+        order_id = to_int(raw_id, 0)
+        if order_id > 0 and order_id not in selected_ids:
+            selected_ids.append(order_id)
+
+    if not selected_ids:
+        flash("Selecione pelo menos um pedido em orcamento.", "warning")
+        return redirect(request.referrer or url_for("orders_page"))
+
+    placeholders = ",".join(["?"] * len(selected_ids))
+    con = db_connect()
+    rows = con.execute(
+        f"""
+        SELECT o.*, c.name AS client_name, p.name AS project_name, COALESCE(f.name,'') AS filament_name
+        FROM orders o
+        JOIN clients c ON c.id=o.client_id
+        JOIN projects p ON p.id=o.project_id
+        LEFT JOIN filaments f ON f.id=o.filament_id
+        WHERE o.id IN ({placeholders})
+        ORDER BY o.created_at ASC, o.id ASC
+        """,
+        tuple(selected_ids),
+    ).fetchall()
+    con.close()
+
+    orders = []
+    for row in rows:
+        item = dict(row)
+        item["code"] = format_order_code(item["order_no"])
+        item["is_budget_status"] = str(item.get("status") or "").strip().lower().startswith("or")
+        orders.append(item)
+
+    if not orders:
+        flash("Nenhum pedido encontrado para gerar o PDF.", "warning")
+        return redirect(request.referrer or url_for("orders_page"))
+
+    invalid_orders = [item["code"] for item in orders if not item.get("is_budget_status")]
+    if invalid_orders:
+        flash(
+            "Somente pedidos com status de orcamento podem entrar nesse PDF. "
+            + "Remova: "
+            + ", ".join(invalid_orders),
+            "warning",
+        )
+        return redirect(request.referrer or url_for("orders_page"))
+
+    logo_path = get_setting("pdf_logo_path")
+    logo_path = Path(logo_path) if logo_path else None
+    pdf_path = PDF_DIR / "orcamento_consolidado.pdf"
+    generate_orders_budget_pdf(orders, pdf_path, logo_path=logo_path)
     return send_from_directory(pdf_path.parent.resolve(), pdf_path.name, as_attachment=True)
 
 

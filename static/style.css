@@ -19,6 +19,9 @@ th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; font-si
 .flash { padding:10px 12px; border-radius:8px; margin-bottom:12px; background:#dcfce7; color:#166534; }
 .muted { color:#6b7280; font-size:14px; }
 .actions a { margin-right:8px; }
+.toolbar-actions { margin-top: 12px; display:flex; gap:10px; flex-wrap:wrap; }
+.checkbox-col { width: 48px; text-align:center; }
+.checkbox-col input { width:auto; transform: scale(1.15); }
 .project-thumb { width:96px; height:96px; object-fit:cover; border-radius:10px; border:1px solid #d1d5db; background:#f8fafc; display:block; }
 .badge { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:bold; }
 .badge-ok { background:#dcfce7; color:#166534; }

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import simpleSplit
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 
@@ -166,6 +167,193 @@ def generate_client_receipt_pdf(
     _line(pdf, left, y, f"Saldo em aberto: {_money(pending_value)}", size=10)
     y -= 12 * mm
     _line(pdf, left, y, "Assinatura: _________________________________________________", size=10)
+
+    pdf.showPage()
+    pdf.save()
+
+
+def generate_orders_budget_pdf(
+    orders: list[dict],
+    out_path: Path,
+    logo_path: Path | None = None,
+):
+    pdf = canvas.Canvas(str(out_path), pagesize=A4)
+    page_width, page_height = A4
+    left = 15 * mm
+    right = page_width - 15 * mm
+    top = page_height - 20 * mm
+    bottom = 20 * mm
+
+    total_value = sum(float(item.get("final_price") or 0) for item in orders)
+
+    def new_page():
+        _draw_logo(pdf, logo_path, page_height)
+        y_pos = top
+        _line(pdf, 50 * mm, y_pos, "Orcamento consolidado - Tres De Impressoes", font="Helvetica-Bold", size=16)
+        y_pos -= 9 * mm
+        _line(pdf, left, y_pos, f"Itens no orcamento: {len(orders)}", size=11)
+        y_pos -= 5 * mm
+        _line(pdf, left, y_pos, f"Total consolidado: {_money(total_value)}", font="Helvetica-Bold", size=11)
+        y_pos -= 8 * mm
+        pdf.line(left, y_pos, right, y_pos)
+        y_pos -= 6 * mm
+        return y_pos
+
+    y = new_page()
+    for item in orders:
+        if y < bottom + 30 * mm:
+            pdf.showPage()
+            y = new_page()
+
+        _line(
+            pdf,
+            left,
+            y,
+            f"{item['code']} | {_safe_text(item.get('client_name'))} | {_safe_text(item.get('project_name'))}",
+            font="Helvetica-Bold",
+            size=10,
+        )
+        y -= 5 * mm
+        _line(
+            pdf,
+            left,
+            y,
+            f"Status: {_safe_text(item.get('status'))}   Qtd: {int(item.get('pieces') or 0)}   Filamento: {_safe_text(item.get('filament_name'))}",
+            size=9,
+        )
+        y -= 5 * mm
+        _line(
+            pdf,
+            left,
+            y,
+            f"Cor: {_safe_text(item.get('chosen_color'))}   Total: {_money(item.get('final_price'))}",
+            size=9,
+        )
+        notes = _safe_text(item.get("notes"), "")
+        if notes:
+            y -= 5 * mm
+            _line(pdf, left, y, f"Obs.: {notes[:100]}", size=9)
+        y -= 6 * mm
+        pdf.line(left, y, right, y)
+        y -= 6 * mm
+
+    if y < bottom + 18 * mm:
+        pdf.showPage()
+        y = new_page()
+
+    _line(pdf, left, y, f"Valor total dos orcamentos: {_money(total_value)}", font="Helvetica-Bold", size=12)
+    y -= 12 * mm
+    _line(pdf, left, y, "Assinatura: _________________________________________________", size=10)
+
+    pdf.showPage()
+    pdf.save()
+
+
+def _fit_text_lines(text: str, font_name: str, font_size: float, width: float, max_lines: int):
+    lines = simpleSplit(_safe_text(text, ""), font_name, font_size, width)
+    if not lines:
+        return [_safe_text(text)]
+    return lines[:max_lines]
+
+
+def _draw_label_text(
+    pdf: canvas.Canvas,
+    x: float,
+    y: float,
+    text: str,
+    font_name: str,
+    font_size: float,
+    max_width: float,
+    max_lines: int,
+    line_gap: float,
+):
+    lines = _fit_text_lines(text, font_name, font_size, max_width, max_lines)
+    for line in lines:
+        pdf.setFont(font_name, font_size)
+        pdf.drawString(x, y, line)
+        y -= line_gap
+    return y
+
+
+def generate_filament_labels_pdf(
+    filaments: list[dict],
+    out_path: Path,
+    logo_path: Path | None = None,
+):
+    pdf = canvas.Canvas(str(out_path), pagesize=A4)
+    page_width, page_height = A4
+
+    label_width = 40 * mm
+    label_height = 25 * mm
+    columns = 5
+    rows = 11
+    margin_x = (page_width - (columns * label_width)) / 2
+    margin_y = (page_height - (rows * label_height)) / 2
+
+    def draw_label(item: dict, index: int):
+        page_slot = index % (columns * rows)
+        col = page_slot % columns
+        row = page_slot // columns
+        x = margin_x + (col * label_width)
+        y = page_height - margin_y - ((row + 1) * label_height)
+
+        pdf.roundRect(x, y, label_width, label_height, 2.5 * mm, stroke=1, fill=0)
+
+        inner_x = x + (2.2 * mm)
+        text_y = y + label_height - (4 * mm)
+        usable_width = label_width - (4.4 * mm)
+
+        if item.get("code"):
+            pdf.setFont("Helvetica", 6.5)
+            pdf.drawRightString(x + label_width - (2.2 * mm), text_y, _safe_text(item.get("code")))
+
+        header = " | ".join(part for part in [_safe_text(item.get("brand"), ""), _safe_text(item.get("ftype"), "")] if part)
+        if header:
+            text_y = _draw_label_text(
+                pdf,
+                inner_x,
+                text_y,
+                header,
+                "Helvetica",
+                6.8,
+                usable_width - (12 * mm),
+                1,
+                3.2 * mm,
+            )
+        else:
+            text_y -= 3.2 * mm
+
+        text_y = _draw_label_text(
+            pdf,
+            inner_x,
+            text_y,
+            _safe_text(item.get("name")),
+            "Helvetica-Bold",
+            8.2,
+            usable_width,
+            2,
+            3.6 * mm,
+        )
+        text_y -= 0.4 * mm
+
+        color_text = _safe_text(item.get("color"), "")
+        if color_text:
+            text_y = _draw_label_text(
+                pdf,
+                inner_x,
+                text_y,
+                color_text,
+                "Helvetica",
+                7.2,
+                usable_width,
+                2,
+                3.3 * mm,
+            )
+
+    for index, item in enumerate(filaments):
+        if index and index % (columns * rows) == 0:
+            pdf.showPage()
+        draw_label(item, index)
 
     pdf.showPage()
     pdf.save()

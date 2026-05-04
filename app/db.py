@@ -603,6 +603,7 @@ def list_orders(status=None, view="active", search="", sort="id", direction="des
         item["code"] = format_order_code(item["order_no"])
         item["stock_discounted"] = int(item.get("stock_discounted") or 0)
         item["stock_discounted_grams"] = to_float(item.get("stock_discounted_grams"))
+        item["is_budget_status"] = str(item.get("status") or "").strip().lower().startswith("or")
         data.append(item)
     return data
 
